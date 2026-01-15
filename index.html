@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NASA Rando - Le Guide Complet</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --glass: rgba(15, 23, 42, 0.9);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text: #ffffff;
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text);
+            scroll-behavior: smooth;
+            background-color: #0f172a;
+            overflow-x: hidden;
+        }
+
+        /* FOND D'ÉCRAN */
+        .hero-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
+                        url('fond.jpg') no-repeat center center/cover;
+            z-index: -1;
+        }
+
+        /* NAVIGATION BAR */
+        nav {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 1.5rem;
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--glass-border);
+            position: sticky; top: 0; z-index: 1000;
+            height: 70px;
+        }
+
+        .logo { font-weight: 800; font-size: 1.4rem; display: flex; align-items: center; gap: 10px; }
+        .nav-center { display: flex; gap: 5px; overflow-x: auto; scrollbar-width: none; }
+        .nav-center::-webkit-scrollbar { display: none; }
+
+        .dropdown { position: relative; }
+        .dropbtn {
+            background: none; border: none; color: white;
+            padding: 25px 12px; font-size: 0.85rem; cursor: pointer;
+            white-space: nowrap; transition: 0.3s;
+        }
+        .dropbtn:hover { background: rgba(255,255,255,0.1); color: var(--primary); }
+
+        .dropdown-content {
+            display: none; position: absolute;
+            background: #1e293b; min-width: 260px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+            border-radius: 0 0 8px 8px; border: 1px solid var(--glass-border);
+            max-height: 70vh; overflow-y: auto;
+        }
+
+        .dropdown-content a {
+            color: #cbd5e1; padding: 12px 16px;
+            text-decoration: none; display: block; font-size: 0.85rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            cursor: pointer;
+        }
+        .dropdown-content a:hover { background: var(--primary); color: white; }
+        .dropdown:hover .dropdown-content { display: block; }
+
+        /* FENÊTRE MODALE (POP-UP) */
+        .modal {
+            display: none; position: fixed; z-index: 2000;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: white; color: #1e293b;
+            padding: 40px; border-radius: 15px;
+            width: 90%; max-width: 800px;
+            max-height: 85vh; overflow-y: auto;
+            position: relative; animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        .close-modal {
+            position: absolute; top: 15px; right: 20px;
+            font-size: 30px; cursor: pointer; color: #64748b;
+        }
+        .modal-content h2 { color: var(--primary); border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+        .modal-content p { line-height: 1.6; font-size: 1.1rem; }
+
+        /* HERO TEXT */
+        .hero-text {
+            height: 85vh; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center;
+        }
+        h1 { font-size: 4.5rem; margin: 0; letter-spacing: -2px; text-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        
+        /* CONTACT */
+        .contact-container {
+            background: white; color: #0f172a;
+            padding: 3rem; max-width: 700px;
+            margin: 4rem auto; border-radius: 20px;
+        }
+        .contact-form { display: grid; gap: 1rem; }
+        input, textarea { padding: 15px; border: 1px solid #ddd; border-radius: 8px; width: 100%; box-sizing: border-box; }
+        button.send { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="hero-bg"></div>
+
+    <nav>
+        <div class="logo">
+            <a href="#" style="color:white; text-decoration:none; display:flex; align-items:center; gap:8px;">
+                <i data-lucide="home"></i> NASA Rando
+            </a>
+        </div>
+        <div class="nav-center" id="main-menu"></div>
+        <div class="nav-right">
+            <a href="#" id="weather-link" style="color:white;"><i data-lucide="cloud-sun"></i></a>
+        </div>
+    </nav>
+
+    <div class="hero-text">
+        <h1>NASA Rando</h1>
+        <p>Le guide ultime pour explorer les sommets en toute sérénité.</p>
+    </div>
+
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">Titre de la fiche</h2>
+            <div id="modalBody">Contenu de la fiche...</div>
+        </div>
+    </div>
+
+    <div class="contact-container" id="contact">
+        <h2 style="margin-top:0">Contactez l'association</h2>
+        <form class="contact-form" action="mailto:cachitopus@gmail.com" method="post" enctype="text-plain">
+            <input type="text" placeholder="Votre Nom" required>
+            <input type="email" placeholder="Votre Email" required>
+            <textarea rows="5" placeholder="Votre message..." required></textarea>
+            <button type="submit" class="send">Envoyer le message</button>
+        </form>
+    </div>
+
+    <script>
+        const CONFIG = {
+            urlMeteo: "https://meteofrance.com/meteo-montagne",
+            themes: [
+                { titre: "Histoire & Bienfaits", liens: ["Histoire et Origines", "L'Épopée des GR", "Bienfaits de la Randonnée"] },
+                { titre: "Rando pour Tous", liens: ["Débuter sereinement", "Solo et Groupe", "En Famille", "Avec son Chien", "Randonnée Seniors", "Bivouac et Autonomie"] },
+                { titre: "Orientation", liens: ["La Carte Topographique", "Balisage des itinéraires", "La Boussole", "L’Altimètre", "Le GPS et le Numérique", "Méthodes Naturelles", "Logiciels de randonnée"] },
+                { titre: "Météo", liens: ["Comprendre les nuages", "Interpréter un bulletin", "Applications smartphone"] },
+                { titre: "Risques & Dangers", liens: ["Défaillance d'un membre", "Montées et Descentes", "Se perdre", "Chute de pierres", "Règle des 4F", "Mal Aigu des Montagnes", "Rencontre avec les animaux"] },
+                { titre: "Santé & Secours", liens: ["Hygiène corporelle", "Trousse de secours", "Gestes de premiers secours", "Déclencher un secours", "Kit de survie"] },
+                { titre: "Équipement", liens: ["S'habiller en rando", "Chaussures", "Bâtons de marche", "Sac à dos", "Les 11 essentiels"] },
+                { titre: "Alimentation", liens: ["Besoins Nutritionnels", "Hydratation", "Repas en Randonnée", "Astuces de Cuisson"] },
+                { titre: "Organisation", liens: ["Où trouver les sentiers", "Évaluer son temps de marche", "Rando sans râler (Enfants)"] }
+            ]
+        };
+
+        // --- ICI VOUS RÉDIGEZ VOS FICHES ---
+        const CONTENU_FICHES = {
+            "La Boussole": `
+        <p>Malgré l'avènement du GPS, la boussole reste l'outil de sécurité ultime : elle n'a pas besoin de batterie et fonctionne partout.</p>
+        <h3>Les 3 étapes clés :</h3>
+        <ul>
+            <li><strong>Orienter la carte :</strong> Posez la boussole sur la carte et tournez l'ensemble jusqu'à ce que le Nord de la carte coïncide avec l'aiguille aimantée.</li>
+            <li><strong>Relever un azimut :</strong> Visez un sommet ou un point de repère lointain. Tournez le cadran pour aligner la flèche de visée avec l'aiguille. L'angle lu est votre azimut.</li>
+            <li><strong>La Triangulation :</strong> En relevant l'azimut de deux sommets identifiables, l'intersection des deux lignes tracées sur votre carte indique votre position exacte.</li>
+        </ul>
+        <p style="background:#f1f5f9; padding:10px; border-radius:5px;"><em>Conseil NASA Rando : Éloignez toujours votre boussole des objets métalliques (piolet, couteau) ou électroniques (smartphone) lors de la lecture.</em></p>
+    `,
+    "Les 11 essentiels": `
+        <p>Il s'agit de la liste de survie indispensable à glisser au fond du sac, même pour une petite randonnée à la journée.</p>
+        <ol>
+            <li><strong>Navigation :</strong> Carte topographique et boussole (savoir s'en servir est un plus !).</li>
+            <li><strong>Protection solaire :</strong> Lunettes de soleil, crème solaire et chapeau.</li>
+            <li><strong>Isolation :</strong> Une couche de vêtement supplémentaire (type doudoune légère).</li>
+            <li><strong>Éclairage :</strong> Une lampe frontale avec des piles chargées.</li>
+            <li><strong>Premiers soins :</strong> Une trousse de secours complète (pansements, désinfectant, couverture de survie).</li>
+            <li><strong>Feu :</strong> Briquet ou allumettes étanches.</li>
+            <li><strong>Outils :</strong> Un couteau multifonction et un kit de réparation rapide.</li>
+            <li><strong>Nutrition :</strong> Des vivres de course en surplus (barres, fruits secs).</li>
+            <li><strong>Hydratation :</strong> Au moins 1,5L d'eau et un système de purification.</li>
+            <li><strong>Abri d'urgence :</strong> Un sac de bivouac léger ou un tarp.</li>
+            <li><strong>Signalisation :</strong> Un sifflet pour se signaler en cas de brouillard ou de chute.</li>
+        </ol>
+        };
+
+        const menuContainer = document.getElementById('main-menu');
+        CONFIG.themes.forEach(t => {
+            const div = document.createElement('div');
+            div.className = 'dropdown';
+            div.innerHTML = `<button class="dropbtn">${t.titre} ▾</button>
+                <div class="dropdown-content">
+                    ${t.liens.map(l => `<a onclick="openModal('${l}')">${l}</a>`).join('')}
+                </div>`;
+            menuContainer.innerHTML += div.outerHTML;
+        });
+
+        function openModal(title) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalBody').innerHTML = CONTENU_FICHES[title] || "<p>Cette fiche est en cours de rédaction par l'équipe de NASA Rando. Revenez bientôt !</p>";
+            document.getElementById('infoModal').style.display = 'flex';
+        }
+
+        function closeModal() { document.getElementById('infoModal').style.display = 'none'; }
+        window.onclick = function(event) { if (event.target == document.getElementById('infoModal')) closeModal(); }
+
+        document.getElementById('weather-link').href = CONFIG.urlMeteo;
+        lucide.createIcons();
+    </script>
+</body>
+</html>
